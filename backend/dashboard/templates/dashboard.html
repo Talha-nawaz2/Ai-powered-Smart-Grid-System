@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRID-OS · Smart Grid Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Self-hosted (not CDN) - some networks block cdnjs.cloudflare.com, which
+     silently breaks Chart.js/Plotly if loaded from there. Serving these
+     ourselves removes that failure mode entirely. -->
+<script src="/static/chart.umd.min.js"></script>
+<script src="/static/plotly.min.js"></script>
+<style>
+  :root{
+    --bg-void:#0A0E14;
+    --bg-panel:#10151F;
+    --bg-panel-raised:#151C29;
+    --line:rgba(124,138,163,0.14);
+    --line-strong:rgba(124,138,163,0.28);
+    --amber:#F5A623;
+    --cyan:#22D3EE;
+    --green:#34D399;
+    --red:#F0555A;
+    --text:#E8EDF5;
+    --text-muted:#7C8AA3;
+    --text-dim:#4B5768;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg-void);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---------- Header ---------- */
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; border-bottom:1px solid var(--line-strong);
+    background:rgba(10,14,20,0.85); backdrop-filter:blur(6px);
+    position:sticky; top:0; z-index:10;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .pulse-dot{
+    width:10px; height:10px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 0 0 rgba(52,211,153,0.6);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(52,211,153,0.55);}
+    70%{box-shadow:0 0 0 8px rgba(52,211,153,0);}
+    100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+  }
+  .brand-title{font-size:19px; font-weight:700; letter-spacing:0.5px;}
+  .brand-sub{font-size:11px; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-top:2px;}
+  #clock{font-size:13px; color:var(--text-muted); margin-right:20px;}
+  .btn-train{
+    background:var(--amber); color:#1a1206; border:none; padding:10px 18px;
+    border-radius:6px; font-weight:600; font-size:13px; cursor:pointer;
+    font-family:'Inter',sans-serif; transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-train:hover{transform:translateY(-1px); box-shadow:0 4px 14px rgba(245,166,35,0.35);}
+  .btn-train:disabled{opacity:0.55; cursor:wait; transform:none; box-shadow:none;}
+
+  main{max-width:1320px; margin:0 auto; padding:28px 32px;}
+
+  .eyebrow{
+    font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--text-dim); margin:0 0 10px 2px; font-weight:600;
+  }
+
+  /* ---------- KPI grid ---------- */
+  .kpi-grid{
+    display:grid; grid-template-columns:repeat(6,1fr); gap:14px; margin-bottom:28px;
+  }
+  @media (max-width:1100px){ .kpi-grid{grid-template-columns:repeat(3,1fr);} }
+  @media (max-width:640px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+  .kpi-card{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+    padding:16px; position:relative; overflow:hidden;
+  }
+  .kpi-card::before{
+    content:''; position:absolute; top:0; left:0; width:3px; height:100%;
+    background:var(--kpi-accent, var(--cyan));
+  }
+  .kpi-label{font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;}
+  .kpi-value{font-size:26px; font-weight:700; font-family:'JetBrains Mono',monospace;}
+  .kpi-unit{font-size:12px; color:var(--text-muted); margin-left:4px;}
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+    padding:20px; margin-bottom:20px;
+  }
+  .panel-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+  }
+  .panel-title{font-size:14px; font-weight:600; letter-spacing:0.3px;}
+  .panel-title .tag{
+    font-size:10px; color:var(--text-dim); font-weight:500; margin-left:8px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .status-pill{
+    font-size:10px; font-family:'JetBrains Mono',monospace; padding:3px 9px;
+    border-radius:20px; border:1px solid var(--line-strong); color:var(--text-muted);
+  }
+  .status-pill.ok{color:var(--green); border-color:rgba(52,211,153,0.4);}
+  .status-pill.pending{color:var(--amber); border-color:rgba(245,166,35,0.4);}
+
+  .grid-2col{display:grid; grid-template-columns:1.4fr 1fr; gap:20px;}
+  @media (max-width:900px){ .grid-2col{grid-template-columns:1fr;} }
+
+  canvas, #renewablePie{max-height:280px;}
+
+  /* ---------- Tables ---------- */
+  table.data-table{width:100%; border-collapse:collapse; font-size:13px;}
+  table.data-table th{
+    text-align:left; padding:9px 10px; color:var(--text-dim); font-weight:600;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  table.data-table td{
+    padding:10px; border-bottom:1px solid var(--line); font-family:'JetBrains Mono',monospace;
+    color:var(--text);
+  }
+  table.data-table tr:hover td{background:rgba(255,255,255,0.02);}
+  .badge{
+    display:inline-block; padding:3px 9px; border-radius:5px; font-size:10.5px;
+    font-weight:700; letter-spacing:0.4px; font-family:'JetBrains Mono',monospace;
+  }
+  .badge.CRITICAL{background:rgba(240,85,90,0.15); color:var(--red);}
+  .badge.HIGH{background:rgba(245,166,35,0.15); color:var(--amber);}
+  .badge.MODERATE{background:rgba(34,211,238,0.15); color:var(--cyan);}
+  .badge.LOW{background:rgba(52,211,153,0.15); color:var(--green);}
+
+  .empty-state{color:var(--text-dim); font-size:12.5px; padding:20px 4px; font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- Copilot ---------- */
+  .copilot-panel{background:var(--bg-panel-raised); border:1px solid var(--line-strong); border-radius:10px; padding:20px;}
+  .copilot-log{
+    height:220px; overflow-y:auto; background:var(--bg-void); border:1px solid var(--line);
+    border-radius:8px; padding:14px; font-family:'JetBrains Mono',monospace; font-size:12.5px;
+    margin-bottom:12px; line-height:1.6;
+  }
+  .copilot-log .q{color:var(--cyan);}
+  .copilot-log .a{color:var(--text); margin-bottom:10px; display:block;}
+  .copilot-log .tool-tag{color:var(--text-dim); font-size:10.5px;}
+  .copilot-input-row{display:flex; gap:10px;}
+  .copilot-input-row input{
+    flex:1; background:var(--bg-void); border:1px solid var(--line-strong); color:var(--text);
+    padding:11px 14px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:13px;
+  }
+  .copilot-input-row input:focus{outline:none; border-color:var(--cyan);}
+  .copilot-input-row button{
+    background:var(--cyan); color:#04202a; border:none; padding:0 20px; border-radius:6px;
+    font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px;
+  }
+  .suggestions{margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;}
+  .suggestions span{
+    font-size:11px; color:var(--text-muted); border:1px solid var(--line); padding:5px 10px;
+    border-radius:20px; cursor:pointer; font-family:'JetBrains Mono',monospace;
+  }
+  .suggestions span:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  footer{text-align:center; color:var(--text-dim); font-size:11px; margin-top:30px; font-family:'JetBrains Mono',monospace;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="pulse-dot"></span>
+    <div>
+      <div class="brand-title display">GRID-OS</div>
+      <div class="brand-sub">Smart Grid Intelligence Platform</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center;">
+    <span id="clock" class="mono"></span>
+    <button class="btn-train" id="simulateBtn" onclick="simulateTick()" style="background:var(--cyan); margin-right:10px;">⚡ Simulate Tick</button>
+    <button class="btn-train" id="trainBtn" onclick="trainAllModels()">▶ Train All Models</button>
+  </div>
+</header>
+
+<main>
+  <p class="eyebrow">Live Grid Overview</p>
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card" style="--kpi-accent:var(--cyan)"><div class="kpi-label">Substations</div><div class="kpi-value" id="kpi-substations">—</div></div>
+    <div class="kpi-card" style="--kpi-accent:var(--cyan)"><div class="kpi-label">Transformers</div><div class="kpi-value" id="kpi-transformers">—</div></div>
+    <div class="kpi-card" style="--kpi-accent:var(--cyan)"><div class="kpi-label">Consumers</div><div class="kpi-value" id="kpi-consumers">—</div></div>
+    <div class="kpi-card" style="--kpi-accent:var(--green)"><div class="kpi-label">Avg Transformer Health</div><div class="kpi-value" id="kpi-health">—</div></div>
+    <div class="kpi-card" style="--kpi-accent:var(--amber)"><div class="kpi-label">Risky Transformers</div><div class="kpi-value" id="kpi-risky">—</div></div>
+    <div class="kpi-card" style="--kpi-accent:var(--cyan)"><div class="kpi-label">Latest Demand</div><div class="kpi-value" id="kpi-demand">—<span class="kpi-unit">MW</span></div></div>
+  </div>
+
+  <div class="grid-2col">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Demand Forecast <span class="tag">PROPHET · NEXT 24H</span></div>
+        <span class="status-pill" id="forecastStatus">idle</span>
+      </div>
+      <canvas id="demandChart"></canvas>
+      <div class="empty-state" id="demandEmpty" style="display:none;">No forecast yet — click "Train All Models" above.</div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Renewable Mix <span class="tag">CAPACITY MW</span></div>
+        <span class="status-pill ok">live</span>
+      </div>
+      <div id="renewablePie"></div>
+    </div>
+  </div>
+
+  <div class="grid-2col">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Predictive Maintenance <span class="tag">XGBOOST · RISK ≥ 70%</span></div>
+        <span class="status-pill" id="maintStatus">idle</span>
+      </div>
+      <table class="data-table" id="riskyTable">
+        <thead><tr><th>Transformer</th><th>Failure Risk</th><th>Level</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty-state" id="maintEmpty" style="display:none;">Not trained yet — click "Train All Models".</div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Theft Detection <span class="tag">ISOLATION FOREST</span></div>
+        <span class="status-pill" id="theftStatus">idle</span>
+      </div>
+      <table class="data-table" id="theftTable">
+        <thead><tr><th>Meter</th><th>Region</th><th>Anomaly Score</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty-state" id="theftEmpty" style="display:none;">Not trained yet — click "Train All Models".</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Critical Substations <span class="tag">NETWORKX · CASCADE RISK</span></div>
+      <span class="status-pill" id="graphStatus">idle</span>
+    </div>
+    <table class="data-table" id="substationTable">
+      <thead><tr><th>Substation</th><th>Downstream Transformers</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="empty-state" id="graphEmpty" style="display:none;">Graph not built yet — click "Train All Models".</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Alert Center <span class="tag">RULE-BASED · LIVE THRESHOLDS</span></div>
+      <span class="status-pill" id="alertStatus">idle</span>
+    </div>
+    <table class="data-table" id="alertsTable">
+      <thead><tr><th>Severity</th><th>Type</th><th>Message</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="empty-state" id="alertsEmpty" style="display:none;"></div>
+  </div>
+
+  <p class="eyebrow">AI Grid Copilot</p>
+  <div class="copilot-panel">
+    <div class="copilot-log" id="copilotLog">
+      <span class="a">Ready. Ask about risky transformers, demand forecast, theft anomalies, or grid topology.</span>
+    </div>
+    <div class="copilot-input-row">
+      <input type="text" id="copilotInput" placeholder="e.g. Which transformer is riskiest right now?" onkeydown="if(event.key==='Enter') askCopilot()">
+      <button onclick="askCopilot()">Ask</button>
+    </div>
+    <div class="suggestions">
+      <span onclick="askCopilot('Which transformer is riskiest right now?')">Riskiest transformer?</span>
+      <span onclick="askCopilot('What is tomorrow demand forecast?')">Demand forecast?</span>
+      <span onclick="askCopilot('Show me theft regions')">Theft regions?</span>
+      <span onclick="askCopilot('Which substations are critical?')">Critical substations?</span>
+    </div>
+  </div>
+
+  <footer>GRID-OS v0.9 · Session 9 · Sessions 1–9 of 10 complete</footer>
+</main>
+
+<script>
+const API = "";
+let demandChartInstance = null;
+
+function fmt(n, d=1){ return (n===null||n===undefined) ? "—" : Number(n).toFixed(d); }
+
+function tickClock(){
+  document.getElementById('clock').textContent = new Date().toLocaleString();
+}
+tickClock(); setInterval(tickClock, 1000);
+
+async function loadOverview(){
+  try{
+    const r = await fetch(`${API}/api/grid/overview`);
+    const d = await r.json();
+    document.getElementById('kpi-substations').textContent = d.total_substations;
+    document.getElementById('kpi-transformers').textContent = d.total_transformers;
+    document.getElementById('kpi-consumers').textContent = d.total_consumers;
+    document.getElementById('kpi-health').textContent = fmt(d.avg_transformer_health);
+    document.getElementById('kpi-risky').textContent = d.risky_transformer_count;
+    document.getElementById('kpi-demand').innerHTML = fmt(d.latest_demand_mw) + '<span class="kpi-unit">MW</span>';
+  }catch(e){ console.error('overview failed', e); }
+
+  // Renewable pie is isolated in its own try/catch so a CDN hiccup on
+  // Plotly never breaks the KPI cards above it (defensive, independent failure domains)
+  try{
+    if(typeof Plotly === 'undefined'){ throw new Error('Plotly failed to load from CDN'); }
+    const r2 = await fetch(`${API}/api/grid/overview`);
+    const d2 = await r2.json();
+    Plotly.newPlot('renewablePie', [{
+      values:[d2.total_solar_capacity_mw, d2.total_wind_capacity_mw],
+      labels:['Solar', 'Wind'],
+      type:'pie', hole:0.55,
+      marker:{colors:['#F5A623','#22D3EE']},
+      textfont:{color:'#E8EDF5', family:'JetBrains Mono'},
+    }], {
+      paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+      showlegend:true, legend:{font:{color:'#7C8AA3', family:'Inter'}},
+      margin:{t:10,b:10,l:10,r:10}, height:260,
+      font:{color:'#E8EDF5'}
+    }, {displayModeBar:false});
+  }catch(e){
+    console.error('renewable chart failed', e);
+    document.getElementById('renewablePie').innerHTML =
+      '<div class="empty-state">Chart library failed to load (check internet connection / ad-blocker). Solar + wind data is fine, just the chart can\'t render.</div>';
+  }
+}
+
+async function loadForecast(){
+  const statusEl = document.getElementById('forecastStatus');
+  try{
+    const r = await fetch(`${API}/api/forecast/hourly?hours=24`);
+    if(!r.ok){
+      const errBody = await r.json().catch(()=>({detail:'Model not trained yet'}));
+      throw new Error(errBody.detail || 'Model not trained yet');
+    }
+    if(typeof Chart === 'undefined'){ throw new Error('Chart.js failed to load from CDN — check internet connection / ad-blocker'); }
+    const d = await r.json();
+    document.getElementById('demandEmpty').style.display = 'none';
+    document.getElementById('demandChart').style.display = 'block';
+    const labels = d.forecast.map(f => f.timestamp.slice(11,16));
+    const values = d.forecast.map(f => f.predicted_demand_mw);
+    const upper = d.forecast.map(f => f.upper_bound_mw);
+    const lower = d.forecast.map(f => f.lower_bound_mw);
+
+    if(demandChartInstance) demandChartInstance.destroy();
+    demandChartInstance = new Chart(document.getElementById('demandChart'), {
+      type:'line',
+      data:{ labels, datasets:[
+        {label:'Upper bound', data:upper, borderColor:'transparent', backgroundColor:'rgba(34,211,238,0.08)', fill:'+1', pointRadius:0},
+        {label:'Predicted Demand (MW)', data:values, borderColor:'#22D3EE', backgroundColor:'rgba(34,211,238,0.08)', fill:false, tension:0.35, pointRadius:2},
+        {label:'Lower bound', data:lower, borderColor:'transparent', pointRadius:0},
+      ]},
+      options:{
+        responsive:true,
+        plugins:{ legend:{display:false} },
+        scales:{
+          x:{ ticks:{color:'#7C8AA3', font:{family:'JetBrains Mono', size:10}}, grid:{color:'rgba(124,138,163,0.08)'} },
+          y:{ ticks:{color:'#7C8AA3', font:{family:'JetBrains Mono', size:10}}, grid:{color:'rgba(124,138,163,0.08)'} },
+        }
+      }
+    });
+    statusEl.textContent = d.mode === 'seasonal_fallback' ? 'live (fallback engine)' : 'live';
+    statusEl.className = 'status-pill ok';
+  }catch(e){
+    console.error('forecast failed', e);
+    document.getElementById('demandChart').style.display = 'none';
+    document.getElementById('demandEmpty').style.display = 'block';
+    document.getElementById('demandEmpty').textContent = e.message || 'No forecast yet — click "Train All Models" above.';
+    statusEl.textContent = 'pending'; statusEl.className = 'status-pill pending';
+  }
+}
+
+async function loadMaintenance(){
+  const statusEl = document.getElementById('maintStatus');
+  try{
+    const r = await fetch(`${API}/api/maintenance/at-risk?threshold=0.7`);
+    if(!r.ok) throw new Error('not trained');
+    const d = await r.json();
+    const tbody = document.querySelector('#riskyTable tbody');
+    tbody.innerHTML = '';
+    if(d.transformers.length === 0){
+      document.getElementById('maintEmpty').style.display = 'block';
+      document.getElementById('maintEmpty').textContent = 'No transformers currently exceed 70% risk. Good news.';
+    } else {
+      document.getElementById('maintEmpty').style.display = 'none';
+      d.transformers.slice(0,10).forEach(t=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${t.transformer_id}</td><td>${(t.failure_probability*100).toFixed(1)}%</td><td><span class="badge ${t.risk_level}">${t.risk_level}</span></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    statusEl.textContent = 'live'; statusEl.className = 'status-pill ok';
+  }catch(e){
+    document.getElementById('maintEmpty').style.display = 'block';
+    statusEl.textContent = 'pending'; statusEl.className = 'status-pill pending';
+  }
+}
+
+async function loadTheft(){
+  const statusEl = document.getElementById('theftStatus');
+  try{
+    const r = await fetch(`${API}/api/theft/anomalies?limit=10`);
+    if(!r.ok) throw new Error('not trained');
+    const d = await r.json();
+    const tbody = document.querySelector('#theftTable tbody');
+    tbody.innerHTML = '';
+    document.getElementById('theftEmpty').style.display = 'none';
+    d.meters.forEach(m=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${m.meter_id}</td><td>${m.region||'—'}</td><td>${fmt(m.anomaly_score,4)}</td>`;
+      tbody.appendChild(tr);
+    });
+    statusEl.textContent = 'live'; statusEl.className = 'status-pill ok';
+  }catch(e){
+    document.getElementById('theftEmpty').style.display = 'block';
+    statusEl.textContent = 'pending'; statusEl.className = 'status-pill pending';
+  }
+}
+
+async function loadGraph(){
+  const statusEl = document.getElementById('graphStatus');
+  try{
+    const r = await fetch(`${API}/api/graph/critical-substations?top_n=8`);
+    if(!r.ok) throw new Error('not built');
+    const d = await r.json();
+    const tbody = document.querySelector('#substationTable tbody');
+    tbody.innerHTML = '';
+    document.getElementById('graphEmpty').style.display = 'none';
+    d.critical_substations.forEach(s=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${s.substation_id}</td><td>${s.connected_transformers}</td>`;
+      tbody.appendChild(tr);
+    });
+    statusEl.textContent = 'live'; statusEl.className = 'status-pill ok';
+  }catch(e){
+    document.getElementById('graphEmpty').style.display = 'block';
+    statusEl.textContent = 'pending'; statusEl.className = 'status-pill pending';
+  }
+}
+
+async function trainAllModels(){
+  const btn = document.getElementById('trainBtn');
+  btn.disabled = true; btn.textContent = '⏳ Training…';
+  try{
+    await fetch(`${API}/api/forecast/train`, {method:'POST'});
+    await fetch(`${API}/api/maintenance/train`, {method:'POST'});
+    await fetch(`${API}/api/theft/train?contamination=0.04`, {method:'POST'});
+    await fetch(`${API}/api/graph/build`, {method:'POST'});
+    await loadAll();
+  }catch(e){ console.error(e); }
+  btn.disabled = false; btn.textContent = '▶ Train All Models';
+}
+
+async function askCopilot(preset){
+  const input = document.getElementById('copilotInput');
+  const query = preset || input.value.trim();
+  if(!query) return;
+  const log = document.getElementById('copilotLog');
+  log.innerHTML += `<div><span class="q">&gt; ${query}</span></div>`;
+  input.value = '';
+  log.scrollTop = log.scrollHeight;
+  try{
+    const r = await fetch(`${API}/api/copilot/ask`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({query})
+    });
+    const d = await r.json();
+    log.innerHTML += `<span class="a">${d.answer}</span><span class="tool-tag">mode: ${d.mode}${d.tool_calls && d.tool_calls.length ? ' · tool: '+d.tool_calls[0].tool : ''}</span>`;
+  }catch(e){
+    log.innerHTML += `<span class="a" style="color:#F0555A;">Error reaching Copilot. Is the server running?</span>`;
+  }
+  log.scrollTop = log.scrollHeight;
+}
+
+async function loadAlerts(){
+  const statusEl = document.getElementById('alertStatus');
+  try{
+    const r = await fetch(`${API}/api/alerts`);
+    const d = await r.json();
+    const tbody = document.querySelector('#alertsTable tbody');
+    tbody.innerHTML = '';
+    if(d.alerts.length === 0){
+      document.getElementById('alertsEmpty').style.display = 'block';
+      document.getElementById('alertsEmpty').textContent = 'No active alerts. Grid is nominal.';
+    } else {
+      document.getElementById('alertsEmpty').style.display = 'none';
+      d.alerts.forEach(a=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><span class="badge ${a.severity}">${a.severity}</span></td><td>${a.type}</td><td>${a.message}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    statusEl.textContent = `${d.total} active`; statusEl.className = d.total > 0 ? 'status-pill pending' : 'status-pill ok';
+  }catch(e){
+    console.error('alerts failed', e);
+    statusEl.textContent = 'error'; statusEl.className = 'status-pill pending';
+  }
+}
+
+async function simulateTick(){
+  const btn = document.getElementById('simulateBtn');
+  btn.disabled = true; btn.textContent = '⏳ Simulating…';
+  try{
+    const r = await fetch(`${API}/api/alerts/simulate-tick`, {method:'POST'});
+    if(!r.ok){ const err = await r.json(); throw new Error(err.detail); }
+    await loadOverview();
+    await loadMaintenance();
+    await loadAlerts();
+  }catch(e){
+    console.error('simulate failed', e);
+    alert('Simulation failed: ' + e.message);
+  }
+  btn.disabled = false; btn.textContent = '⚡ Simulate Tick';
+}
+
+async function loadAll(){
+  await loadOverview();
+  await loadForecast();
+  await loadMaintenance();
+  await loadTheft();
+  await loadGraph();
+  await loadAlerts();
+}
+loadAll();
+</script>
+</body>
+</html>
