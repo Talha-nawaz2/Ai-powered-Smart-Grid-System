@@ -1,0 +1,30 @@
+# Render Blueprint (Infrastructure as Code)
+#
+# This file lets Render configure the entire deployment automatically from
+# one "New Blueprint Instance" click, instead of manually filling in build
+# command / start command / plan in the dashboard UI. Keeping deployment
+# config as a file in the repo (rather than only in a web dashboard) means
+# it's version-controlled and reproducible - the same principle as keeping
+# infrastructure config anywhere else in this codebase (see utils/config.py).
+
+services:
+  - type: web
+    name: grid-os
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python -c \"import cmdstanpy; cmdstanpy.install_cmdstan()\" || true"
+    startCommand: "uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: false
+      - key: GEMINI_API_KEY
+        sync: false   # set manually in the Render dashboard - never commit real keys to git
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OPENAI_API_KEY
+        sync: false
