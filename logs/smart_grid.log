@@ -686,3 +686,4 @@ AttributeError: 'Prophet' object has no attribute 'stan_backend'
 2026-09-05 02:53:45.626 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
 2026-09-05 02:53:45.634 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
 2026-09-05 02:53:46.015 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (24 critical)
+2026-09-05 03:00:21.308 | INFO     | backend.api.main:on_startup:66 - Smart Grid Intelligence Platform starting up in 'development' mode
