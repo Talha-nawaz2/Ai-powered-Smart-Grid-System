@@ -587,3 +587,102 @@ AttributeError: 'Prophet' object has no attribute 'stan_backend'
 2026-08-18 03:36:48.677 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
 2026-08-18 03:36:48.687 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
 2026-08-18 03:36:49.101 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 38 alerts (19 critical)
+2026-08-20 16:44:38.861 | INFO     | backend.api.main:on_startup:66 - Smart Grid Intelligence Platform starting up in 'development' mode
+2026-08-20 16:45:26.538 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:45:33.868 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:45:39.755 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 38 alerts (19 critical)
+2026-08-20 16:45:41.651 | INFO     | backend.forecasting.forecast_service:_train_prophet:78 - Training Prophet on 2163 hourly demand points (2026-05-12 11:12:44.342404 -> 2026-08-17 22:36:48.663200)
+2026-08-20 16:45:41.735 | WARNING  | backend.forecasting.forecast_service:train:66 - Prophet training failed (AttributeError: 'Prophet' object has no attribute 'stan_backend'); falling back to seasonal decomposition forecasting.
+2026-08-20 16:45:41.826 | INFO     | backend.forecasting.forecast_service:_train_seasonal_fallback:112 - Seasonal fallback trained: slope=0.1829 MW/day, residual_std=118.5 MW
+2026-08-20 16:45:41.829 | INFO     | backend.forecasting.forecast_service:train:72 - Forecast training complete using mode='seasonal_fallback'.
+2026-08-20 16:45:41.862 | INFO     | backend.maintenance.maintenance_service:train:61 - Training XGBoost on 400 transformers (24 failures in train set)
+2026-08-20 16:45:42.458 | INFO     | backend.maintenance.maintenance_service:train:93 - Maintenance model trained. Metrics: {'accuracy': 0.99, 'precision': 1.0, 'recall': 0.833, 'f1_score': 0.909, 'roc_auc': 0.995, 'test_set_size': 100, 'test_set_failures': 6, 'feature_importance': {'past_failures_5y': 0.4659999907016754, 'age_years': 0.2029999941587448, 'temperature_c': 0.1599999964237213, 'oil_quality_index': 0.0989999994635582, 'load_factor': 0.035999998450279236, 'capacity_kva': 0.024000000208616257, 'vibration_mm_s': 0.010999999940395355}}
+2026-08-20 16:45:42.525 | INFO     | backend.theft_detection.theft_service:train:54 - Training Isolation Forest on 3000 meters (contamination=0.04)
+2026-08-20 16:45:43.341 | INFO     | backend.theft_detection.theft_service:train:90 - Theft model trained. Metrics: {'trained_on_rows': 3000, 'contamination': 0.04, 'flagged_anomalies': 120, 'evaluation_against_ground_truth': {'note': 'Ground truth used ONLY for scoring, never for training', 'actual_theft_cases': 115, 'precision': 0.942, 'recall': 0.983, 'f1_score': 0.962}}
+2026-08-20 16:45:43.485 | INFO     | backend.knowledge_graph.graph_service:build:80 - Knowledge graph built: {'total_nodes': 6580, 'total_edges': 6955, 'node_counts_by_type': {'power_plant': 30, 'substation': 50, 'transformer': 500, 'meter': 3000, 'consumer': 3000}, 'is_connected': False}
+2026-08-20 16:45:43.501 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:45:43.511 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:45:44.955 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 38 alerts (18 critical)
+2026-08-20 16:53:16.956 | INFO     | backend.alerts.simulator_service:simulate_tick:74 - Simulator tick applied: {'transformers_updated': 20, 'demand_points_added': 1, 'batteries_updated': 5}
+2026-08-20 16:53:17.004 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:53:17.020 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:53:18.025 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 38 alerts (18 critical)
+2026-08-20 16:54:57.650 | INFO     | backend.forecasting.forecast_service:_train_prophet:78 - Training Prophet on 2164 hourly demand points (2026-05-12 11:12:44.342404 -> 2026-08-20 11:53:16.919342)
+2026-08-20 16:54:57.705 | WARNING  | backend.forecasting.forecast_service:train:66 - Prophet training failed (AttributeError: 'Prophet' object has no attribute 'stan_backend'); falling back to seasonal decomposition forecasting.
+2026-08-20 16:54:57.825 | INFO     | backend.forecasting.forecast_service:_train_seasonal_fallback:112 - Seasonal fallback trained: slope=0.1800 MW/day, residual_std=118.5 MW
+2026-08-20 16:54:57.831 | INFO     | backend.forecasting.forecast_service:train:72 - Forecast training complete using mode='seasonal_fallback'.
+2026-08-20 16:54:57.906 | INFO     | backend.maintenance.maintenance_service:train:61 - Training XGBoost on 400 transformers (25 failures in train set)
+2026-08-20 16:54:58.539 | INFO     | backend.maintenance.maintenance_service:train:93 - Maintenance model trained. Metrics: {'accuracy': 0.96, 'precision': 0.75, 'recall': 0.5, 'f1_score': 0.6, 'roc_auc': 0.988, 'test_set_size': 100, 'test_set_failures': 6, 'feature_importance': {'past_failures_5y': 0.41600000858306885, 'age_years': 0.2199999988079071, 'temperature_c': 0.14399999380111694, 'load_factor': 0.1080000028014183, 'oil_quality_index': 0.06499999761581421, 'capacity_kva': 0.023000000044703484, 'vibration_mm_s': 0.023000000044703484}}
+2026-08-20 16:54:58.636 | INFO     | backend.theft_detection.theft_service:train:54 - Training Isolation Forest on 3000 meters (contamination=0.04)
+2026-08-20 16:54:59.414 | INFO     | backend.theft_detection.theft_service:train:90 - Theft model trained. Metrics: {'trained_on_rows': 3000, 'contamination': 0.04, 'flagged_anomalies': 120, 'evaluation_against_ground_truth': {'note': 'Ground truth used ONLY for scoring, never for training', 'actual_theft_cases': 115, 'precision': 0.942, 'recall': 0.983, 'f1_score': 0.962}}
+2026-08-20 16:54:59.554 | INFO     | backend.knowledge_graph.graph_service:build:80 - Knowledge graph built: {'total_nodes': 6580, 'total_edges': 6955, 'node_counts_by_type': {'power_plant': 30, 'substation': 50, 'transformer': 500, 'meter': 3000, 'consumer': 3000}, 'is_connected': False}
+2026-08-20 16:54:59.571 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:54:59.588 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-08-20 16:55:00.923 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-02 01:38:14.821 | INFO     | backend.api.main:on_startup:66 - Smart Grid Intelligence Platform starting up in 'development' mode
+2026-09-02 01:39:12.727 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:39:12.881 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:39:15.649 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-02 01:51:32.904 | INFO     | backend.api.main:on_startup:66 - Smart Grid Intelligence Platform starting up in 'development' mode
+2026-09-02 01:51:35.935 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:51:36.169 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:51:37.496 | INFO     | backend.alerts.simulator_service:simulate_tick:74 - Simulator tick applied: {'transformers_updated': 20, 'demand_points_added': 1, 'batteries_updated': 5}
+2026-09-02 01:51:37.509 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:51:37.520 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:51:37.937 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-02 01:51:38.385 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-02 01:51:39.563 | INFO     | backend.forecasting.forecast_service:_train_prophet:78 - Training Prophet on 2165 hourly demand points (2026-05-12 11:12:44.342404 -> 2026-09-01 20:51:37.455476)
+2026-09-02 01:51:39.616 | WARNING  | backend.forecasting.forecast_service:train:66 - Prophet training failed (AttributeError: 'Prophet' object has no attribute 'stan_backend'); falling back to seasonal decomposition forecasting.
+2026-09-02 01:51:39.636 | INFO     | backend.forecasting.forecast_service:_train_seasonal_fallback:112 - Seasonal fallback trained: slope=0.1771 MW/day, residual_std=118.5 MW
+2026-09-02 01:51:39.637 | INFO     | backend.forecasting.forecast_service:train:72 - Forecast training complete using mode='seasonal_fallback'.
+2026-09-02 01:51:39.662 | INFO     | backend.maintenance.maintenance_service:train:61 - Training XGBoost on 400 transformers (25 failures in train set)
+2026-09-02 01:51:39.979 | INFO     | backend.maintenance.maintenance_service:train:93 - Maintenance model trained. Metrics: {'accuracy': 0.96, 'precision': 0.667, 'recall': 0.667, 'f1_score': 0.667, 'roc_auc': 0.986, 'test_set_size': 100, 'test_set_failures': 6, 'feature_importance': {'past_failures_5y': 0.44699999690055847, 'age_years': 0.20200000703334808, 'temperature_c': 0.14300000667572021, 'load_factor': 0.10199999809265137, 'oil_quality_index': 0.07199999690055847, 'vibration_mm_s': 0.03400000184774399, 'capacity_kva': 0.0}}
+2026-09-02 01:51:40.051 | INFO     | backend.theft_detection.theft_service:train:54 - Training Isolation Forest on 3000 meters (contamination=0.04)
+2026-09-02 01:51:40.689 | INFO     | backend.theft_detection.theft_service:train:90 - Theft model trained. Metrics: {'trained_on_rows': 3000, 'contamination': 0.04, 'flagged_anomalies': 120, 'evaluation_against_ground_truth': {'note': 'Ground truth used ONLY for scoring, never for training', 'actual_theft_cases': 115, 'precision': 0.942, 'recall': 0.983, 'f1_score': 0.962}}
+2026-09-02 01:51:40.842 | INFO     | backend.knowledge_graph.graph_service:build:80 - Knowledge graph built: {'total_nodes': 6580, 'total_edges': 6955, 'node_counts_by_type': {'power_plant': 30, 'substation': 50, 'transformer': 500, 'meter': 3000, 'consumer': 3000}, 'is_connected': False}
+2026-09-02 01:51:40.863 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:51:40.881 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-02 01:51:42.032 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-05 02:18:33.429 | INFO     | backend.api.main:on_startup:66 - Smart Grid Intelligence Platform starting up in 'development' mode
+2026-09-05 02:19:08.199 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:08.850 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:10.199 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-05 02:19:11.627 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:11.718 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:12.557 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-05 02:19:13.597 | INFO     | backend.alerts.simulator_service:simulate_tick:74 - Simulator tick applied: {'transformers_updated': 20, 'demand_points_added': 1, 'batteries_updated': 5}
+2026-09-05 02:19:13.608 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:13.625 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:14.059 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (22 critical)
+2026-09-05 02:19:16.474 | INFO     | backend.forecasting.forecast_service:_train_prophet:78 - Training Prophet on 2166 hourly demand points (2026-05-12 11:12:44.342404 -> 2026-09-04 21:19:13.594532)
+2026-09-05 02:19:16.530 | WARNING  | backend.forecasting.forecast_service:train:66 - Prophet training failed (AttributeError: 'Prophet' object has no attribute 'stan_backend'); falling back to seasonal decomposition forecasting.
+2026-09-05 02:19:16.542 | INFO     | backend.forecasting.forecast_service:_train_seasonal_fallback:112 - Seasonal fallback trained: slope=0.1747 MW/day, residual_std=118.5 MW
+2026-09-05 02:19:16.542 | INFO     | backend.forecasting.forecast_service:train:72 - Forecast training complete using mode='seasonal_fallback'.
+2026-09-05 02:19:16.559 | INFO     | backend.maintenance.maintenance_service:train:61 - Training XGBoost on 400 transformers (25 failures in train set)
+2026-09-05 02:19:16.641 | INFO     | backend.maintenance.maintenance_service:train:93 - Maintenance model trained. Metrics: {'accuracy': 0.96, 'precision': 0.75, 'recall': 0.5, 'f1_score': 0.6, 'roc_auc': 0.983, 'test_set_size': 100, 'test_set_failures': 6, 'feature_importance': {'past_failures_5y': 0.42800000309944153, 'age_years': 0.20800000429153442, 'temperature_c': 0.15000000596046448, 'load_factor': 0.08299999684095383, 'capacity_kva': 0.05999999865889549, 'oil_quality_index': 0.057999998331069946, 'vibration_mm_s': 0.013000000268220901}}
+2026-09-05 02:19:16.700 | INFO     | backend.theft_detection.theft_service:train:54 - Training Isolation Forest on 3000 meters (contamination=0.04)
+2026-09-05 02:19:17.176 | INFO     | backend.theft_detection.theft_service:train:90 - Theft model trained. Metrics: {'trained_on_rows': 3000, 'contamination': 0.04, 'flagged_anomalies': 120, 'evaluation_against_ground_truth': {'note': 'Ground truth used ONLY for scoring, never for training', 'actual_theft_cases': 115, 'precision': 0.942, 'recall': 0.983, 'f1_score': 0.962}}
+2026-09-05 02:19:17.259 | INFO     | backend.knowledge_graph.graph_service:build:80 - Knowledge graph built: {'total_nodes': 6580, 'total_edges': 6955, 'node_counts_by_type': {'power_plant': 30, 'substation': 50, 'transformer': 500, 'meter': 3000, 'consumer': 3000}, 'is_connected': False}
+2026-09-05 02:19:17.266 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:17.274 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:19:17.971 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (24 critical)
+2026-09-05 02:53:38.222 | INFO     | backend.api.main:on_startup:66 - Smart Grid Intelligence Platform starting up in 'development' mode
+2026-09-05 02:53:40.303 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:53:41.002 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:53:42.312 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (24 critical)
+2026-09-05 02:53:43.217 | INFO     | backend.forecasting.forecast_service:_train_prophet:78 - Training Prophet on 2166 hourly demand points (2026-05-12 11:12:44.342404 -> 2026-09-04 21:19:13.594532)
+2026-09-05 02:53:43.289 | WARNING  | backend.forecasting.forecast_service:train:66 - Prophet training failed (AttributeError: 'Prophet' object has no attribute 'stan_backend'); falling back to seasonal decomposition forecasting.
+2026-09-05 02:53:43.318 | INFO     | backend.forecasting.forecast_service:_train_seasonal_fallback:112 - Seasonal fallback trained: slope=0.1747 MW/day, residual_std=118.5 MW
+2026-09-05 02:53:43.318 | INFO     | backend.forecasting.forecast_service:train:72 - Forecast training complete using mode='seasonal_fallback'.
+2026-09-05 02:53:43.337 | INFO     | backend.maintenance.maintenance_service:train:61 - Training XGBoost on 400 transformers (25 failures in train set)
+2026-09-05 02:53:43.424 | INFO     | backend.maintenance.maintenance_service:train:93 - Maintenance model trained. Metrics: {'accuracy': 0.96, 'precision': 0.75, 'recall': 0.5, 'f1_score': 0.6, 'roc_auc': 0.983, 'test_set_size': 100, 'test_set_failures': 6, 'feature_importance': {'past_failures_5y': 0.42800000309944153, 'age_years': 0.20800000429153442, 'temperature_c': 0.15000000596046448, 'load_factor': 0.08299999684095383, 'capacity_kva': 0.05999999865889549, 'oil_quality_index': 0.057999998331069946, 'vibration_mm_s': 0.013000000268220901}}
+2026-09-05 02:53:43.468 | INFO     | backend.theft_detection.theft_service:train:54 - Training Isolation Forest on 3000 meters (contamination=0.04)
+2026-09-05 02:53:43.924 | INFO     | backend.theft_detection.theft_service:train:90 - Theft model trained. Metrics: {'trained_on_rows': 3000, 'contamination': 0.04, 'flagged_anomalies': 120, 'evaluation_against_ground_truth': {'note': 'Ground truth used ONLY for scoring, never for training', 'actual_theft_cases': 115, 'precision': 0.942, 'recall': 0.983, 'f1_score': 0.962}}
+2026-09-05 02:53:44.032 | INFO     | backend.knowledge_graph.graph_service:build:80 - Knowledge graph built: {'total_nodes': 6580, 'total_edges': 6955, 'node_counts_by_type': {'power_plant': 30, 'substation': 50, 'transformer': 500, 'meter': 3000, 'consumer': 3000}, 'is_connected': False}
+2026-09-05 02:53:44.039 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:53:44.045 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:53:44.733 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (24 critical)
+2026-09-05 02:53:45.603 | INFO     | backend.alerts.simulator_service:simulate_tick:74 - Simulator tick applied: {'transformers_updated': 20, 'demand_points_added': 1, 'batteries_updated': 5}
+2026-09-05 02:53:45.626 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:53:45.634 | INFO     | backend.api.service:get_overview:32 - Grid overview generated: 500 transformers, 30 risky
+2026-09-05 02:53:46.015 | INFO     | backend.alerts.alert_service:generate_alerts:79 - Generated 39 alerts (24 critical)

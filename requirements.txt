@@ -12,6 +12,7 @@ pandas==2.2.2
 numpy==1.26.4
 sqlalchemy==2.0.35
 
+
 # ===== ML / Forecasting =====
 scikit-learn==1.5.2
 xgboost==2.1.1

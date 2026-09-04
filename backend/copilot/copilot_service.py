@@ -76,6 +76,7 @@ class CopilotService:
     # ---------- Rule-based fallback ----------
     def _answer_with_rules(self, query: str, db: Session) -> dict:
         q = query.lower()
+
         tool_calls_made = []
 
         node_match = re.search(r"(CUS|MTR|TRF)-\d+", query.upper())
